@@ -58,6 +58,13 @@ import { Fonts } from "../fonts";
 import { renderStaticScene } from "../renderer/staticScene";
 import { renderSceneToSvg } from "../renderer/staticSvgScene";
 
+import {
+  getExportAttributionFontElement,
+  layoutExportAttribution,
+  renderExportAttributionToCanvas,
+  renderExportAttributionToSvg,
+} from "./exportAttribution";
+
 import type { RenderableElementsMap } from "./types";
 
 import type { AppState, BinaryFiles } from "../types";
@@ -177,6 +184,15 @@ const prepareElementsForRender = ({
   return nextElements;
 };
 
+/** the badge is drawn outside the scene, so its font is loaded separately */
+const loadExportAttributionFont = async () => {
+  try {
+    await Fonts.loadElementsFonts([getExportAttributionFontElement(14)]);
+  } catch (error: any) {
+    console.error(error);
+  }
+};
+
 export const exportToCanvas = async (
   elements: readonly NonDeletedExcalidrawElement[],
   appState: AppState,
@@ -186,11 +202,14 @@ export const exportToCanvas = async (
     exportPadding = DEFAULT_EXPORT_PADDING,
     viewBackgroundColor,
     exportingFrame,
+    exportWithAttribution = false,
   }: {
     exportBackground: boolean;
     exportPadding?: number;
     viewBackgroundColor: string;
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
+    /** adds the "Made with excalidraw.com" badge below the content */
+    exportWithAttribution?: boolean;
   },
   createCanvas: (
     width: number,
@@ -207,6 +226,9 @@ export const exportToCanvas = async (
 ) => {
   // load font faces before continuing, by default leverages browsers' [FontFace API](https://developer.mozilla.org/en-US/docs/Web/API/FontFace)
   await loadFonts();
+  if (exportWithAttribution) {
+    await loadExportAttributionFont();
+  }
 
   const frameRendering = getFrameRenderingConfig(
     exportingFrame ?? null,
@@ -229,10 +251,20 @@ export const exportToCanvas = async (
     exportPadding = 0;
   }
 
-  const [minX, minY, width, height] = getCanvasSize(
+  const [minX, minY, contentWidth, contentHeight] = getCanvasSize(
     exportingFrame ? [exportingFrame] : getRootElements(elementsForRender),
     exportPadding,
   );
+
+  const attribution = exportWithAttribution
+    ? layoutExportAttribution({
+        width: contentWidth,
+        height: contentHeight,
+        exportPadding,
+      })
+    : null;
+  const width = attribution?.width ?? contentWidth;
+  const height = attribution?.height ?? contentHeight;
 
   const { canvas, scale = 1 } = createCanvas(width, height);
 
@@ -280,6 +312,14 @@ export const exportToCanvas = async (
     },
   });
 
+  if (attribution) {
+    renderExportAttributionToCanvas(canvas, attribution, {
+      scale,
+      exportWithDarkMode: appState.exportWithDarkMode,
+      exportBackground,
+    });
+  }
+
   return canvas;
 };
 
@@ -310,6 +350,8 @@ export const exportToSvg = async (
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
     skipInliningFonts?: true;
     reuseImages?: boolean;
+    /** adds the clickable "Made with excalidraw.com" badge below the content */
+    exportWithAttribution?: boolean;
   },
 ): Promise<SVGSVGElement> => {
   const frameRendering = getFrameRenderingConfig(
@@ -338,10 +380,25 @@ export const exportToSvg = async (
     exportPadding = 0;
   }
 
-  const [minX, minY, width, height] = getCanvasSize(
+  const [minX, minY, contentWidth, contentHeight] = getCanvasSize(
     exportingFrame ? [exportingFrame] : getRootElements(elementsForRender),
     exportPadding,
   );
+
+  const exportWithAttribution = opts?.exportWithAttribution ?? false;
+  if (exportWithAttribution) {
+    // loaded so the badge text is measured with the right font
+    await loadExportAttributionFont();
+  }
+  const attribution = exportWithAttribution
+    ? layoutExportAttribution({
+        width: contentWidth,
+        height: contentHeight,
+        exportPadding,
+      })
+    : null;
+  const width = attribution?.width ?? contentWidth;
+  const height = attribution?.height ?? contentHeight;
 
   const offsetX = -minX + exportPadding;
   const offsetY = -minY + exportPadding;
@@ -437,7 +494,11 @@ export const exportToSvg = async (
   // ---------------------------------------------------------------------------
 
   const fontFaces = !opts?.skipInliningFonts
-    ? await Fonts.generateFontFaceDeclarations(elements)
+    ? await Fonts.generateFontFaceDeclarations(
+        attribution
+          ? [...elements, getExportAttributionFontElement(attribution.fontSize)]
+          : elements,
+      )
     : [];
 
   const delimiter = "\n      "; // 6 spaces
@@ -501,6 +562,18 @@ export const exportToSvg = async (
       theme: exportWithDarkMode ? THEME.DARK : THEME.LIGHT,
     },
   );
+
+  // ---------------------------------------------------------------------------
+  // attribution badge
+  // ---------------------------------------------------------------------------
+
+  if (attribution) {
+    renderExportAttributionToSvg(svgRoot, attribution, {
+      exportWithDarkMode,
+      exportBackground: appState.exportBackground,
+      format: "svg",
+    });
+  }
 
   // ---------------------------------------------------------------------------
 

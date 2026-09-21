@@ -113,6 +113,32 @@ export const actionChangeExportEmbedScene = register<
   ),
 });
 
+export const actionChangeExportWithAttribution = register<
+  AppState["exportWithAttribution"]
+>({
+  name: "changeExportWithAttribution",
+  label: "labels.addWatermark",
+  trackEvent: {
+    category: "export",
+    action: "toggleAttribution",
+    getLabelSuffix: (_appState, value) => `attribution:${value ? "on" : "off"}`,
+  },
+  perform: (_elements, appState, value) => {
+    return {
+      appState: { ...appState, exportWithAttribution: value },
+      captureUpdate: CaptureUpdateAction.EVENTUALLY,
+    };
+  },
+  PanelComponent: ({ appState, updateData }) => (
+    <CheckboxItem
+      checked={appState.exportWithAttribution}
+      onChange={(checked) => updateData(checked)}
+    >
+      {t("labels.addWatermark")}
+    </CheckboxItem>
+  ),
+});
+
 // ---------------------------------------------------------------------------
 // onExport interception helpers
 // ---------------------------------------------------------------------------
