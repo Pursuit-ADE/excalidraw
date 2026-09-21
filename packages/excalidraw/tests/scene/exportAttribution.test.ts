@@ -3,6 +3,7 @@ import { exportToCanvas, exportToSvg } from "@excalidraw/utils";
 import { applyDarkModeFilter } from "@excalidraw/common";
 
 import { actionCopyAsPng, actionCopyAsSvg } from "../../actions";
+import { copyBlobToClipboardAsPng } from "../../clipboard";
 import { actionChangeExportWithAttribution } from "../../actions/actionExport";
 import { getDefaultAppState } from "../../appState";
 import {
@@ -183,6 +184,89 @@ describe("export attribution badge", () => {
       expect(toggle.getLabelSuffix?.(appState(true), false)).toBe(
         "attribution:off",
       );
+    });
+  });
+
+  describe("copy to clipboard", () => {
+    const readBlob = (blob: Blob) =>
+      new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsText(blob);
+      });
+
+    let written: Record<string, Blob | Promise<Blob>>[] = [];
+    let write: ReturnType<typeof vi.fn>;
+    const originalClipboard = Object.getOwnPropertyDescriptor(
+      navigator,
+      "clipboard",
+    );
+
+    beforeEach(() => {
+      written = [];
+      write = vi.fn(async (items: { data: Record<string, any> }[]) => {
+        written.push(items[0].data);
+      });
+      vi.stubGlobal(
+        "ClipboardItem",
+        class {
+          constructor(public data: Record<string, any>) {}
+        },
+      );
+      Object.defineProperty(navigator, "clipboard", {
+        value: { write },
+        configurable: true,
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      if (originalClipboard) {
+        Object.defineProperty(navigator, "clipboard", originalClipboard);
+      } else {
+        delete (navigator as any).clipboard;
+      }
+    });
+
+    const png = () =>
+      new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" });
+    const link = {
+      href: getExportAttributionUrl("clipboard"),
+      alt: "Diagram made with Excalidraw.com",
+      canvas: { width: 1640, height: 274 } as HTMLCanvasElement,
+      scale: 2,
+    };
+
+    it("copies a linked version of the image when the badge is on", async () => {
+      await copyBlobToClipboardAsPng(png(), link);
+
+      expect(write).toHaveBeenCalledTimes(1);
+      expect(Object.keys(written[0])).toEqual(["image/png", "text/html"]);
+      const html = await readBlob(await written[0]["text/html"]);
+      expect(html).toContain(
+        'href="https://excalidraw.com/?utm_source=excalidraw&amp;utm_medium=export&amp;utm_content=clipboard"',
+      );
+      expect(html).toContain('src="data:image/png;base64,');
+      // sized at 1x even when exported at 2x
+      expect(html).toContain('width="820" height="137"');
+    });
+
+    it("copies the image alone without a link", async () => {
+      await copyBlobToClipboardAsPng(png());
+
+      expect(write).toHaveBeenCalledTimes(1);
+      expect(Object.keys(written[0])).toEqual(["image/png"]);
+    });
+
+    it("falls back to the image alone if the linked version is rejected", async () => {
+      write.mockRejectedValueOnce(new Error("text/html not supported"));
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      await copyBlobToClipboardAsPng(png(), link);
+
+      expect(write).toHaveBeenCalledTimes(2);
+      expect(Object.keys(written[0])).toEqual(["image/png"]);
+      warn.mockRestore();
     });
   });
 });

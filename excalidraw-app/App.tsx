@@ -122,6 +122,7 @@ import {
   importFromLocalStorage,
   importUsernameFromLocalStorage,
 } from "./data/localStorage";
+import { MobileExcalidrawComBadge } from "./components/ExcalidrawComBadge";
 
 import { loadFilesFromFirebase } from "./data/firebase";
 import {
@@ -1063,6 +1064,7 @@ const ExcalidrawWrapper = () => {
           )}
         </OverwriteConfirmDialog>
         <AppFooter onChange={() => excalidrawAPI?.refresh()} />
+        <MobileExcalidrawComBadge />
         {excalidrawAPI && <AIComponents excalidrawAPI={excalidrawAPI} />}
 
         <TTDDialogTrigger />
