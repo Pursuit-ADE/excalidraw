@@ -34,6 +34,10 @@ describe("export attribution badge", () => {
     expect(getDefaultAppState().exportWithAttribution).toBe(false);
   });
 
+  it("reads Excalidraw.com", () => {
+    expect(EXPORT_ATTRIBUTION_TEXT).toBe("Excalidraw.com");
+  });
+
   it("grows with large diagrams and stays within limits", () => {
     expect(getExportAttributionFontSize(200, 100)).toBe(14);
     expect(getExportAttributionFontSize(1000, 200)).toBe(20);

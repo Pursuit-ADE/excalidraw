@@ -273,7 +273,7 @@ const ImageExportModal = ({
           />
         </ExportSetting>
         <ExportSetting
-          label={t("labels.addWatermark")}
+          label={t("imageExportDialog.label.attribution")}
           name="exportAttributionSwitch"
         >
           <Switch

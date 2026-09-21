@@ -529,6 +529,7 @@
       "onlySelected": "Only selected",
       "darkMode": "Dark mode",
       "embedScene": "Embed scene",
+      "attribution": "Add \"Excalidraw.com\"",
       "scale": "Scale",
       "padding": "Padding"
     },
