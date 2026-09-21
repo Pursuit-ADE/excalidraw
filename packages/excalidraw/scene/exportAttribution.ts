@@ -11,12 +11,12 @@ import { getLineWidth, newTextElement } from "@excalidraw/element";
 import type { FontString } from "@excalidraw/element/types";
 
 /**
- * "Made with excalidraw.com" badge that can be added to image exports
+ * "Excalidraw.com" badge (logo + address) that can be added to image exports
  * (PNG, SVG, clipboard). It sits below the drawing, in the bottom-right
  * corner, and never covers any element. In SVG it is a real link.
  */
 
-export const EXPORT_ATTRIBUTION_TEXT = "Made with excalidraw.com";
+export const EXPORT_ATTRIBUTION_TEXT = "Excalidraw.com";
 
 export type ExportAttributionFormat = "png" | "svg" | "clipboard";
 
@@ -213,7 +213,7 @@ export const renderExportAttributionToSvg = (
   link.setAttribute("rel", "noopener noreferrer");
 
   const title = doc.createElementNS(SVG_NS, "title");
-  title.textContent = "Made with Excalidraw. Open excalidraw.com";
+  title.textContent = "Open Excalidraw.com";
   link.appendChild(title);
 
   const logoScale = layout.logoSize / EXCALIDRAW_LOGO_ICON_VIEWBOX;
