@@ -595,6 +595,8 @@ export const createLinkedImageHTML = async (
   const height = Math.round(canvas.height / scale);
   const src = await blobToDataURL(png);
   // no underline/border, so docs apps don't draw a link line under the image
+  // (Chrome strips inline styles when writing the clipboard, so Word still
+  // shows a thin link line there; other browsers may keep them)
   const html = `<a href="${escapeHtmlAttribute(
     link.href,
   )}" style="text-decoration:none"><img src="${src}" alt="${escapeHtmlAttribute(
