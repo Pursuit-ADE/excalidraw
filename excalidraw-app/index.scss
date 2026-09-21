@@ -45,6 +45,19 @@
     }
   }
 
+  .excalidraw-com-badge-mobile {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    z-index: var(--zIndex-layerUI);
+    pointer-events: none;
+
+    .excalidraw-com-badge {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.35rem;
+    }
+  }
+
   &.theme--dark .excalidraw-com-badge {
     color: var(--color-gray-40);
 

@@ -30,6 +30,10 @@ import {
 import { t } from "../i18n";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
 import { exportToCanvas, exportToSvg } from "../scene/export";
+import {
+  EXPORT_ATTRIBUTION_TEXT,
+  getExportAttributionUrl,
+} from "../scene/exportAttribution";
 
 import { canvasToBlob } from "./blob";
 import { fileSave } from "./filesystem";
@@ -198,7 +202,19 @@ export const exportCanvas = async (
   } else if (type === "clipboard") {
     try {
       const blob = canvasToBlob(tempCanvas);
-      await copyBlobToClipboardAsPng(blob);
+      await copyBlobToClipboardAsPng(
+        blob,
+        // with the badge on, also copy a linked version so rich-text apps
+        // paste an image that opens excalidraw.com
+        appState.exportWithAttribution
+          ? {
+              href: getExportAttributionUrl("clipboard"),
+              alt: `Diagram made with ${EXPORT_ATTRIBUTION_TEXT}`,
+              canvas: tempCanvas,
+              scale: appState.exportScale,
+            }
+          : undefined,
+      );
     } catch (error: any) {
       console.warn(error);
       if (error.name === "CANVAS_POSSIBLY_TOO_BIG") {
