@@ -118,6 +118,7 @@ import {
 import { updateStaleImageStatuses } from "./data/FileManager";
 import { FileStatusStore } from "./data/fileStatusStore";
 import {
+  APP_DEFAULT_APP_STATE,
   importFromLocalStorage,
   importUsernameFromLocalStorage,
 } from "./data/localStorage";
@@ -244,7 +245,10 @@ const initializeScene = async (opts: {
       repairBindings: true,
       deleteInvisibleElements: true,
     }),
-    appState: restoreAppState(localDataState?.appState, null),
+    appState: restoreAppState(
+      localDataState?.appState ?? APP_DEFAULT_APP_STATE,
+      null,
+    ),
   };
 
   let roomLinkData = getCollaborationLinkData(window.location.href);
@@ -276,7 +280,7 @@ const initializeScene = async (opts: {
             imported.appState,
             // local appState when importing from backend to ensure we restore
             // localStorage user settings which we do not persist on server.
-            localDataState?.appState,
+            localDataState?.appState ?? APP_DEFAULT_APP_STATE,
           ),
         };
       }
