@@ -6,6 +6,7 @@ import { actionCopyAsPng, actionCopyAsSvg } from "../../actions";
 import { copyBlobToClipboardAsPng } from "../../clipboard";
 import { actionChangeExportWithAttribution } from "../../actions/actionExport";
 import { getDefaultAppState } from "../../appState";
+import { exportToCanvas as exportToCanvasInternal } from "../../scene/export";
 import {
   EXPORT_ATTRIBUTION_COMPACT_TEXT,
   EXPORT_ATTRIBUTION_TEXT,
@@ -222,6 +223,66 @@ describe("export attribution badge", () => {
       expect(getBadgeText(transparent)!.getAttribute("stroke")).toBeTruthy();
       expect(getBadgeText(withBackground)!.getAttribute("stroke")).toBeNull();
     });
+
+    it("sizes the badge to only the exported elements, not a wider scene", async () => {
+      // "Only selected" exports (Day 19 P0): the caller already filters
+      // `elements` down to the selection before calling exportToSvg, so a
+      // small selection must not be sized as if the far-away rest of the
+      // scene were still part of the export.
+      const selection = [createRectangle(100, 60)];
+      const svg = await exportToSvg({
+        elements: selection,
+        files: null,
+        exportWithAttribution: true,
+      });
+
+      // a lone 1600x1200 rectangle would need a much wider canvas than 100x60
+      expect(Number(svg.getAttribute("width"))).toBeLessThan(400);
+    });
+
+    it("keeps at least an 8px margin when export padding is 0", async () => {
+      const svg = await exportToSvg({
+        elements: [createRectangle(400, 200)],
+        files: null,
+        exportPadding: 0,
+        exportWithAttribution: true,
+      });
+
+      const badge = getBadge(svg)!;
+      const path = badge.querySelector("path")!;
+      const transform = path.getAttribute("transform") || "";
+      const [badgeX] = transform
+        .replace("translate(", "")
+        .split(")")[0]
+        .split(" ")
+        .map(Number);
+
+      expect(badgeX).toBeGreaterThanOrEqual(8);
+      expect(
+        Number(svg.getAttribute("width")) - badgeX,
+      ).toBeGreaterThanOrEqual(8);
+    });
+
+    it("stays inside the canvas on extreme aspect ratios", async () => {
+      const veryWide = await exportToSvg({
+        elements: [createRectangle(3000, 20)],
+        files: null,
+        exportWithAttribution: true,
+      });
+      const veryTall = await exportToSvg({
+        elements: [createRectangle(20, 3000)],
+        files: null,
+        exportWithAttribution: true,
+      });
+
+      for (const svg of [veryWide, veryTall]) {
+        const badge = getBadgeText(svg)!;
+        expect(Number(badge.getAttribute("x"))).toBeLessThanOrEqual(
+          Number(svg.getAttribute("width")),
+        );
+        expect(Number(badge.getAttribute("x"))).toBeGreaterThan(0);
+      }
+    });
   });
 
   describe("exportToCanvas", () => {
@@ -251,6 +312,40 @@ describe("export attribution badge", () => {
       expect(getFillTextCalls(canvas)).toContain(
         EXPORT_ATTRIBUTION_COMPACT_TEXT,
       );
+    });
+
+    it("still draws the badge at 2x and 3x export scale", async () => {
+      // exercises the internal exportToCanvas that the app (data/index.ts)
+      // actually calls, where appState.exportScale drives canvas sizing —
+      // the public @excalidraw/utils wrapper above only scales when a
+      // maxWidthOrHeight/getDimensions callback is supplied, which is a
+      // separate, pre-existing quirk of that wrapper, not of the badge.
+      const elements = [API.createElement({ type: "rectangle", width: 400, height: 200 })];
+      const appState = {
+        ...getDefaultAppState(),
+        exportWithAttribution: true,
+        width: 0,
+        height: 0,
+        offsetTop: 0,
+        offsetLeft: 0,
+      };
+
+      const at1x = await exportToCanvasInternal(
+        elements,
+        { ...appState, exportScale: 1 },
+        {},
+        { exportBackground: true, viewBackgroundColor: "#ffffff", exportWithAttribution: true },
+      );
+      const at3x = await exportToCanvasInternal(
+        elements,
+        { ...appState, exportScale: 3 },
+        {},
+        { exportBackground: true, viewBackgroundColor: "#ffffff", exportWithAttribution: true },
+      );
+
+      expect(getFillTextCalls(at3x)).toContain(EXPORT_ATTRIBUTION_TEXT);
+      expect(at3x.width).toBe(at1x.width * 3);
+      expect(at3x.height).toBe(at1x.height * 3);
     });
   });
 
