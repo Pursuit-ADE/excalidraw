@@ -11,17 +11,27 @@ import { getLineWidth, newTextElement } from "@excalidraw/element";
 import type { FontString } from "@excalidraw/element/types";
 
 /**
- * "Excalidraw.com" badge (logo + address) that can be added to image exports
- * (PNG, SVG, clipboard). It sits below the drawing, in the bottom-right
+ * Subtle "excalidraw.com" credit (logo + address) that can be added to image
+ * exports (PNG, SVG, clipboard). It sits below the drawing, in the bottom-right
  * corner, and never covers any element. In SVG it is a real link.
  */
 
-export const EXPORT_ATTRIBUTION_TEXT = "Excalidraw.com";
+export const EXPORT_ATTRIBUTION_TEXT = "excalidraw.com";
+/** PRD P2 compact badge: logo + address only */
+export const EXPORT_ATTRIBUTION_COMPACT_TEXT = "excalidraw.com";
+
+/**
+ * PRD appendix E comparison versions: no badge, text only, logo + full copy.
+ */
+export type ExportAttributionVariant = "off" | "text" | "logoAndText";
 
 export type ExportAttributionFormat = "png" | "svg" | "clipboard";
 
+/** Open a blank board (new collab room), not the viewer's last local drawing. */
+export const EXPORT_ATTRIBUTION_NEW_BOARD_HASH = "#new";
+
 export const getExportAttributionUrl = (format: ExportAttributionFormat) =>
-  `https://excalidraw.com/?utm_source=excalidraw&utm_medium=export&utm_content=${format}`;
+  `https://excalidraw.com/?utm_source=excalidraw&utm_medium=export&utm_content=${format}${EXPORT_ATTRIBUTION_NEW_BOARD_HASH}`;
 
 /** Excalidraw logo mark (pencil), drawn in a 40×40 box */
 export const EXCALIDRAW_LOGO_ICON_VIEWBOX = 40;
@@ -49,6 +59,9 @@ export type ExportAttributionLayout = {
   fontSize: number;
   font: FontString;
   logoSize: number;
+  text: string;
+  showLogo: boolean;
+  compact: boolean;
 };
 
 export const getExportAttributionFontSize = (
@@ -75,28 +88,66 @@ export const getExportAttributionFontElement = (fontSize: number) =>
  * Takes the export size without the badge and returns the size with the
  * badge added below the content, plus where to draw the badge.
  */
+const measureBadgeWidth = ({
+  text,
+  showLogo,
+  font,
+  logoSize,
+  logoGap,
+}: {
+  text: string;
+  showLogo: boolean;
+  font: FontString;
+  logoSize: number;
+  logoGap: number;
+}) => getLineWidth(text, font) + (showLogo ? logoSize + logoGap : 0);
+
 export const layoutExportAttribution = ({
   width,
   height,
   exportPadding,
+  variant = "logoAndText",
 }: {
   width: number;
   height: number;
   exportPadding: number;
+  variant?: Exclude<ExportAttributionVariant, "off">;
 }): ExportAttributionLayout => {
   const fontSize = getExportAttributionFontSize(
     width - exportPadding * 2,
     height - exportPadding * 2,
   );
   const font = getFontString({ fontFamily: FONT_FAMILY_ID, fontSize });
-  const textWidth = getLineWidth(EXPORT_ATTRIBUTION_TEXT, font);
   const logoSize = Math.round(fontSize * 1.2);
   const logoGap = Math.round(fontSize * 0.4);
-
-  const badgeWidth = logoSize + logoGap + textWidth;
-  const badgeHeight = logoSize;
-  // keep the badge off the image edge even when exporting a frame (padding 0)
   const margin = Math.max(exportPadding, 8);
+
+  const showLogo = variant === "logoAndText";
+  let text = EXPORT_ATTRIBUTION_TEXT;
+  let compact = false;
+
+  if (variant === "logoAndText") {
+    const fullWidth = measureBadgeWidth({
+      text: EXPORT_ATTRIBUTION_TEXT,
+      showLogo: true,
+      font,
+      logoSize,
+      logoGap,
+    });
+    if (fullWidth + margin * 2 > width) {
+      text = EXPORT_ATTRIBUTION_COMPACT_TEXT;
+      compact = true;
+    }
+  }
+
+  const badgeWidth = measureBadgeWidth({
+    text,
+    showLogo,
+    font,
+    logoSize,
+    logoGap,
+  });
+  const badgeHeight = logoSize;
   const spacing = Math.round(fontSize * 0.5);
 
   const y = height - exportPadding + spacing;
@@ -113,6 +164,9 @@ export const layoutExportAttribution = ({
     fontSize,
     font,
     logoSize,
+    text,
+    showLogo,
+    compact,
   };
 };
 
@@ -160,7 +214,7 @@ export const renderExportAttributionToCanvas = (
   context.save();
   context.setTransform(opts.scale, 0, 0, opts.scale, 0, 0);
 
-  if (typeof Path2D !== "undefined") {
+  if (layout.showLogo && typeof Path2D !== "undefined") {
     const logoScale = layout.logoSize / EXCALIDRAW_LOGO_ICON_VIEWBOX;
     const logo = new Path2D(EXCALIDRAW_LOGO_ICON_PATH);
     context.save();
@@ -185,10 +239,10 @@ export const renderExportAttributionToCanvas = (
     context.lineJoin = "round";
     context.lineWidth = haloWidth;
     context.strokeStyle = colors.halo;
-    context.strokeText(EXPORT_ATTRIBUTION_TEXT, anchor.x, anchor.y);
+    context.strokeText(layout.text, anchor.x, anchor.y);
   }
   context.fillStyle = colors.text;
-  context.fillText(EXPORT_ATTRIBUTION_TEXT, anchor.x, anchor.y);
+  context.fillText(layout.text, anchor.x, anchor.y);
 
   context.restore();
 };
@@ -216,21 +270,23 @@ export const renderExportAttributionToSvg = (
   title.textContent = "Open Excalidraw.com";
   link.appendChild(title);
 
-  const logoScale = layout.logoSize / EXCALIDRAW_LOGO_ICON_VIEWBOX;
-  const logo = doc.createElementNS(SVG_NS, "path");
-  logo.setAttribute("d", EXCALIDRAW_LOGO_ICON_PATH);
-  logo.setAttribute(
-    "transform",
-    `translate(${layout.x} ${layout.y}) scale(${logoScale})`,
-  );
-  logo.setAttribute("fill", colors.logo);
-  if (colors.halo) {
-    logo.setAttribute("stroke", colors.halo);
-    logo.setAttribute("stroke-width", `${haloWidth / logoScale}`);
-    logo.setAttribute("stroke-linejoin", "round");
-    logo.setAttribute("paint-order", "stroke");
+  if (layout.showLogo) {
+    const logoScale = layout.logoSize / EXCALIDRAW_LOGO_ICON_VIEWBOX;
+    const logo = doc.createElementNS(SVG_NS, "path");
+    logo.setAttribute("d", EXCALIDRAW_LOGO_ICON_PATH);
+    logo.setAttribute(
+      "transform",
+      `translate(${layout.x} ${layout.y}) scale(${logoScale})`,
+    );
+    logo.setAttribute("fill", colors.logo);
+    if (colors.halo) {
+      logo.setAttribute("stroke", colors.halo);
+      logo.setAttribute("stroke-width", `${haloWidth / logoScale}`);
+      logo.setAttribute("stroke-linejoin", "round");
+      logo.setAttribute("paint-order", "stroke");
+    }
+    link.appendChild(logo);
   }
-  link.appendChild(logo);
 
   const anchor = getTextAnchor(layout);
   const text = doc.createElementNS(SVG_NS, "text");
@@ -249,7 +305,7 @@ export const renderExportAttributionToSvg = (
     text.setAttribute("stroke-linejoin", "round");
     text.setAttribute("paint-order", "stroke");
   }
-  text.textContent = EXPORT_ATTRIBUTION_TEXT;
+  text.textContent = layout.text;
   link.appendChild(text);
 
   svgRoot.appendChild(link);

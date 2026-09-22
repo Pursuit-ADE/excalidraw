@@ -2,7 +2,16 @@ import path from "path";
 
 import { defineConfig } from "vitest/config";
 
+const projectRoot = path.resolve(__dirname);
+
 export default defineConfig({
+  // Nested checkout: do not walk up to a parent Excalidraw repo.
+  root: projectRoot,
+  server: {
+    fs: {
+      allow: [projectRoot],
+    },
+  },
   resolve: {
     alias: [
       {
@@ -79,7 +88,7 @@ export default defineConfig({
     sequence: {
       hooks: "parallel",
     },
-    setupFiles: ["./setupTests.ts"],
+    setupFiles: [path.resolve(projectRoot, "setupTests.ts")],
     globals: true,
     environment: "jsdom",
     // don't list skipped tests in the failure tree — keeps output readable

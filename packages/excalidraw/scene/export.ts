@@ -65,6 +65,8 @@ import {
   renderExportAttributionToSvg,
 } from "./exportAttribution";
 
+import type { ExportAttributionVariant } from "./exportAttribution";
+
 import type { RenderableElementsMap } from "./types";
 
 import type { AppState, BinaryFiles } from "../types";
@@ -203,13 +205,16 @@ export const exportToCanvas = async (
     viewBackgroundColor,
     exportingFrame,
     exportWithAttribution = false,
+    exportAttributionVariant = "logoAndText",
   }: {
     exportBackground: boolean;
     exportPadding?: number;
     viewBackgroundColor: string;
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
-    /** adds the "Made with excalidraw.com" badge below the content */
+    /** adds the "excalidraw.com" badge below the content */
     exportWithAttribution?: boolean;
+    /** PRD appendix E: text only vs logo + copy. Default is logo + copy. */
+    exportAttributionVariant?: Exclude<ExportAttributionVariant, "off">;
   },
   createCanvas: (
     width: number,
@@ -261,6 +266,7 @@ export const exportToCanvas = async (
         width: contentWidth,
         height: contentHeight,
         exportPadding,
+        variant: exportAttributionVariant,
       })
     : null;
   const width = attribution?.width ?? contentWidth;
@@ -350,8 +356,10 @@ export const exportToSvg = async (
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
     skipInliningFonts?: true;
     reuseImages?: boolean;
-    /** adds the clickable "Made with excalidraw.com" badge below the content */
+    /** adds the clickable "excalidraw.com" badge below the content */
     exportWithAttribution?: boolean;
+    /** PRD appendix E: text only vs logo + copy. Default is logo + copy. */
+    exportAttributionVariant?: Exclude<ExportAttributionVariant, "off">;
   },
 ): Promise<SVGSVGElement> => {
   const frameRendering = getFrameRenderingConfig(
@@ -395,6 +403,7 @@ export const exportToSvg = async (
         width: contentWidth,
         height: contentHeight,
         exportPadding,
+        variant: opts?.exportAttributionVariant ?? "logoAndText",
       })
     : null;
   const width = attribution?.width ?? contentWidth;

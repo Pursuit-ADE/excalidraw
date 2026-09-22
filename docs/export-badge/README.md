@@ -10,7 +10,7 @@ Sharper version: [`excalidraw-badge-demo.mp4`](excalidraw-badge-demo.mp4).
 
 ## What it does
 
-- **Every image export carries a small badge**: the Excalidraw logo and "Excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies.
+- **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies.
 - **The whiteboard shows the same badge, always on**, bottom-right next to the encryption icon. It opens the Excalidraw it runs on in a new tab: excalidraw.com in production, your local or preview build while testing.
 - **Phones get it too**: on the left of the row above the toolbar (undo and redo are on the right). It steps aside while that row shows style buttons, and sits in the bottom-left corner in view mode.
 - **One switch removes it from exports**: Add "Excalidraw.com" in the Export image window. On by default on excalidraw.com, off by default for apps that use the npm package, remembered in the browser.
@@ -33,7 +33,7 @@ Exported PNG, light and dark mode:
 | --- | --- |
 | ![Corner badge in dark theme](07-corner-dark.png) | ![Phone view with the badge beside undo and redo](phone-badge.png) |
 
-[`example-export.svg`](example-export.svg) is a real SVG export. Open it in a browser and click the badge: it links to `https://excalidraw.com/?utm_source=excalidraw&utm_medium=export&utm_content=svg`.
+[`example-export.svg`](example-export.svg) is a real SVG export. Open it in a browser and click the badge: it links to `https://excalidraw.com/?utm_source=excalidraw&utm_medium=export&utm_content=svg#new` (a new blank board, not the last local drawing).
 
 ## Where a click works
 
@@ -75,8 +75,8 @@ The export badge is an option an export has to ask for directly; it is never rea
 
 ## PRD P2 items
 
-- **Smaller badge for very small exports**: covered by the wording change. The PRD's compact version was "logo + excalidraw.com"; that is now the only version, so small exports already get the short badge.
-- **Badge test with real creators and viewers**: needs real people, so the team runs it. The [Badge Test Kit](https://claude.ai/artifact/V9Ka2AbBHs6CvDgRREB8AP) has the three versions (none, text only, logo + text), both scripts, a live click test, the decision rule and a results sheet.
+- **Smaller badge for very small exports**: the default mark is already logo + `excalidraw.com`. If that would still be wider than the drawing, the export is widened so the badge stays below the content.
+- **Badge test with real creators and viewers**: protocol in [`comparison-test.md`](comparison-test.md). Three versions (none, text only, logo + copy). Not a third Export-window toggle. The [Badge Test Kit](https://claude.ai/artifact/V9Ka2AbBHs6CvDgRREB8AP) has the live click test and results sheet.
 
 ## Try it
 
@@ -97,6 +97,7 @@ Open http://localhost:3001, draw something, and open the Export image window (Ct
 - `excalidraw-app/data/localStorage.ts`: on by default for excalidraw.com
 - `packages/excalidraw/actions/actionClipboard.tsx`: copies count as exports
 - Tests: `packages/excalidraw/tests/scene/exportAttribution.test.ts`, `excalidraw-app/tests/AppFooter.test.tsx`
+- Comparison protocol: `docs/export-badge/comparison-test.md`
 
 ## Checks
 
@@ -107,4 +108,3 @@ Open http://localhost:3001, draw something, and open the Export image window (Ct
 ## Still open
 
 - Run the creator and viewer sessions with the test kit
-- Decide the wording: the badge reads "Excalidraw.com" (capital E); Excalidraw itself writes "excalidraw.com"

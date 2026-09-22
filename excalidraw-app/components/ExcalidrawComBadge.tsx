@@ -8,7 +8,7 @@ import {
 import { useLayoutEffect, useState } from "react";
 
 const CANVAS_BADGE_QUERY =
-  "?utm_source=excalidraw&utm_medium=app&utm_content=canvasBadge";
+  "?utm_source=excalidraw&utm_medium=app&utm_content=canvasBadge#new";
 
 /**
  * Opens the Excalidraw this app is running on: excalidraw.com in production,

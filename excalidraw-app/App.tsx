@@ -234,6 +234,32 @@ const initializeScene = async (opts: {
 
   const localDataState = importFromLocalStorage();
 
+  if (window.location.hash === "#new" && opts.collabAPI) {
+    opts.excalidrawAPI.resetScene();
+    const collabScene = await opts.collabAPI.startCollaboration(null);
+    const newRoom = getCollaborationLinkData(window.location.href);
+    return {
+      scene: {
+        ...collabScene,
+        appState: {
+          ...restoreAppState(
+            {
+              ...collabScene?.appState,
+              theme:
+                localDataState?.appState?.theme || collabScene?.appState?.theme,
+            },
+            opts.excalidrawAPI.getAppState(),
+          ),
+          isLoading: false,
+        },
+        elements: collabScene?.elements || [],
+      },
+      isExternalScene: true,
+      id: newRoom?.roomId ?? "",
+      key: newRoom?.roomKey ?? "",
+    };
+  }
+
   let scene: Omit<
     RestoredDataState,
     // we're not storing files in the scene database/localStorage, and instead

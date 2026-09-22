@@ -68,10 +68,11 @@ These work in code, but they are **not** Day 15–20 P0 and some conflict with P
 - **Canvas badge URL** uses `utm_medium=app&utm_content=canvasBadge` and **local origin** while testing, not `utm_medium=export`. Fine for a local demo; not the PRD export campaign.
 - **Could not re-verify** tests or the live Export window on this machine (disk full).
 
-## Suggested next step on ADE (not done in this commit)
+## Done on ADE after this review
 
-Keep Mitra’s pipeline. Change only:
+1. `EXPORT_ATTRIBUTION_TEXT` is `excalidraw.com` (shorter, subtler credit).
+2. Export toggle uses `t("labels.addWatermark")`.
+3. P2 compact badge: tiny exports use logo + `excalidraw.com` when the full string would overflow.
+4. P2 comparison versions: `exportAttributionVariant` `"text"` | `"logoAndText"` plus [`docs/export-badge/comparison-test.md`](comparison-test.md).
 
-1. `EXPORT_ATTRIBUTION_TEXT` → `Made with excalidraw.com`
-2. Dialog label → `t("labels.addWatermark")`
-3. Decide as a team whether to keep or strip the corner/phone badge and HTML clipboard link before we call P0 done.
+Still a team call: keep or strip the corner/phone badge and HTML clipboard link.

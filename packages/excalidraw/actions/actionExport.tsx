@@ -117,7 +117,7 @@ export const actionChangeExportWithAttribution = register<
   AppState["exportWithAttribution"]
 >({
   name: "changeExportWithAttribution",
-  label: "imageExportDialog.label.attribution",
+  label: "labels.addWatermark",
   trackEvent: {
     category: "export",
     action: "toggleAttribution",
@@ -134,7 +134,7 @@ export const actionChangeExportWithAttribution = register<
       checked={appState.exportWithAttribution}
       onChange={(checked) => updateData(checked)}
     >
-      {t("imageExportDialog.label.attribution")}
+      {t("labels.addWatermark")}
     </CheckboxItem>
   ),
 });

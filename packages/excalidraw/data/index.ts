@@ -209,7 +209,7 @@ export const exportCanvas = async (
         appState.exportWithAttribution
           ? {
               href: getExportAttributionUrl("clipboard"),
-              alt: `Diagram made with ${EXPORT_ATTRIBUTION_TEXT}`,
+              alt: EXPORT_ATTRIBUTION_TEXT,
               canvas: tempCanvas,
               scale: appState.exportScale,
             }

@@ -27,11 +27,11 @@ describe("AppFooter", () => {
     );
 
     expect(badge).not.toBeNull();
-    expect(badge!.textContent).toBe("Excalidraw.com");
+    expect(badge!.textContent).toBe("excalidraw.com");
     // opens the Excalidraw it runs on (excalidraw.com in production)
     expect(badge!.getAttribute("href")).toBe(getExcalidrawComBadgeUrl());
     expect(badge!.getAttribute("href")).toBe(
-      `${window.location.origin}/?utm_source=excalidraw&utm_medium=app&utm_content=canvasBadge`,
+      `${window.location.origin}/?utm_source=excalidraw&utm_medium=app&utm_content=canvasBadge#new`,
     );
     expect(badge!.getAttribute("href")).toContain("utm_content=canvasBadge");
     expect(badge!.target).toBe("_blank");

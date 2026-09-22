@@ -429,7 +429,7 @@ export interface AppState {
 
   exportBackground: boolean;
   exportEmbedScene: boolean;
-  /** adds the "Made with excalidraw.com" badge to image exports */
+  /** adds the "excalidraw.com" badge to image exports */
   exportWithAttribution: boolean;
   exportWithDarkMode: boolean;
   exportScale: number;

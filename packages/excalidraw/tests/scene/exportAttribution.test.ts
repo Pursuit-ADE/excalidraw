@@ -7,6 +7,7 @@ import { copyBlobToClipboardAsPng } from "../../clipboard";
 import { actionChangeExportWithAttribution } from "../../actions/actionExport";
 import { getDefaultAppState } from "../../appState";
 import {
+  EXPORT_ATTRIBUTION_COMPACT_TEXT,
   EXPORT_ATTRIBUTION_TEXT,
   getExportAttributionFontSize,
   getExportAttributionUrl,
@@ -35,8 +36,14 @@ describe("export attribution badge", () => {
     expect(getDefaultAppState().exportWithAttribution).toBe(false);
   });
 
-  it("reads Excalidraw.com", () => {
-    expect(EXPORT_ATTRIBUTION_TEXT).toBe("Excalidraw.com");
+  it("reads excalidraw.com", () => {
+    expect(EXPORT_ATTRIBUTION_TEXT).toBe("excalidraw.com");
+  });
+
+  it("opens a new board instead of the last local drawing", () => {
+    expect(getExportAttributionUrl("svg")).toBe(
+      "https://excalidraw.com/?utm_source=excalidraw&utm_medium=export&utm_content=svg#new",
+    );
   });
 
   it("grows with large diagrams and stays within limits", () => {
@@ -59,7 +66,7 @@ describe("export attribution badge", () => {
     });
 
     it("adds a clickable badge below the drawing", async () => {
-      const elements = [createRectangle()];
+      const elements = [createRectangle(400, 200)];
       const withoutBadge = await exportToSvg({ elements, files: null });
       const svg = await exportToSvg({
         elements,
@@ -71,6 +78,7 @@ describe("export attribution badge", () => {
       expect(badge).not.toBeNull();
       expect(badge!.getAttribute("href")).toBe(getExportAttributionUrl("svg"));
       expect(badge!.getAttribute("href")).toContain("utm_medium=export");
+      expect(badge!.getAttribute("href")).toContain("#new");
       expect(badge!.getAttribute("target")).toBe("_blank");
       expect(badge!.getAttribute("rel")).toContain("noopener");
       expect(getBadgeText(svg)!.textContent).toBe(EXPORT_ATTRIBUTION_TEXT);
@@ -95,6 +103,56 @@ describe("export attribution badge", () => {
       const textRight = Number(getBadgeText(svg)!.getAttribute("x"));
       expect(textRight).toBeLessThanOrEqual(width);
       expect(width).toBeGreaterThan(30);
+    });
+
+    it("uses the compact logo + excalidraw.com badge on tiny exports", async () => {
+      const svg = await exportToSvg({
+        elements: [createRectangle(10, 10)],
+        files: null,
+        exportWithAttribution: true,
+      });
+
+      expect(getBadgeText(svg)!.textContent).toBe(
+        EXPORT_ATTRIBUTION_COMPACT_TEXT,
+      );
+      expect(getBadge(svg)!.querySelector("path")).not.toBeNull();
+    });
+
+    it("keeps the full excalidraw.com badge on ordinary exports", async () => {
+      const svg = await exportToSvg({
+        elements: [createRectangle(400, 200)],
+        files: null,
+        exportWithAttribution: true,
+      });
+
+      expect(getBadgeText(svg)!.textContent).toBe(EXPORT_ATTRIBUTION_TEXT);
+    });
+
+    it("exports the three PRD appendix E comparison versions", async () => {
+      const elements = [createRectangle(400, 200)];
+      const off = await exportToSvg({ elements, files: null });
+      const textOnly = await exportToSvg({
+        elements,
+        files: null,
+        exportWithAttribution: true,
+        exportAttributionVariant: "text",
+      });
+      const logoAndText = await exportToSvg({
+        elements,
+        files: null,
+        exportWithAttribution: true,
+        exportAttributionVariant: "logoAndText",
+      });
+
+      expect(getBadge(off)).toBeNull();
+
+      expect(getBadgeText(textOnly)!.textContent).toBe(EXPORT_ATTRIBUTION_TEXT);
+      expect(getBadge(textOnly)!.querySelector("path")).toBeNull();
+
+      expect(getBadgeText(logoAndText)!.textContent).toBe(
+        EXPORT_ATTRIBUTION_TEXT,
+      );
+      expect(getBadge(logoAndText)!.querySelector("path")).not.toBeNull();
     });
 
     it("follows dark mode", async () => {
@@ -139,7 +197,7 @@ describe("export attribution badge", () => {
 
   describe("exportToCanvas", () => {
     it("draws the badge only when requested", async () => {
-      const elements = [createRectangle()];
+      const elements = [createRectangle(400, 200)];
       const withoutBadge = await exportToCanvas({ elements, files: null });
       const canvas = await exportToCanvas({
         elements,
@@ -152,6 +210,18 @@ describe("export attribution badge", () => {
       );
       expect(getFillTextCalls(canvas)).toContain(EXPORT_ATTRIBUTION_TEXT);
       expect(canvas.height).toBeGreaterThan(withoutBadge.height);
+    });
+
+    it("draws the compact badge on tiny canvas exports", async () => {
+      const canvas = await exportToCanvas({
+        elements: [createRectangle(10, 10)],
+        files: null,
+        exportWithAttribution: true,
+      });
+
+      expect(getFillTextCalls(canvas)).toContain(
+        EXPORT_ATTRIBUTION_COMPACT_TEXT,
+      );
     });
   });
 
@@ -232,7 +302,7 @@ describe("export attribution badge", () => {
       new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" });
     const link = {
       href: getExportAttributionUrl("clipboard"),
-      alt: "Diagram made with Excalidraw.com",
+      alt: "excalidraw.com",
       canvas: { width: 1640, height: 274 } as HTMLCanvasElement,
       scale: 2,
     };
@@ -244,7 +314,7 @@ describe("export attribution badge", () => {
       expect(Object.keys(written[0])).toEqual(["image/png", "text/html"]);
       const html = await readBlob(await written[0]["text/html"]);
       expect(html).toContain(
-        'href="https://excalidraw.com/?utm_source=excalidraw&amp;utm_medium=export&amp;utm_content=clipboard"',
+        'href="https://excalidraw.com/?utm_source=excalidraw&amp;utm_medium=export&amp;utm_content=clipboard#new"',
       );
       expect(html).toContain('src="data:image/png;base64,');
       // sized at 1x even when exported at 2x
