@@ -92,6 +92,35 @@ describe("export attribution badge", () => {
       );
     });
 
+    it("tags the SVG badge link as a clipboard copy when exported for clipboard", async () => {
+      const elements = [createRectangle(400, 200)];
+
+      const fileExport = await exportToSvg({
+        elements,
+        files: null,
+        exportWithAttribution: true,
+      });
+      expect(getBadge(fileExport)!.getAttribute("href")).toBe(
+        getExportAttributionUrl("svg"),
+      );
+
+      // "Copy as SVG" (Export window, right-click, or Shift+Alt+C) is still a
+      // clickable badge — it just has to say "clipboard", not "svg", so the
+      // Brand Visibility Rate can be measured per format (PRD §2d, §3, Appendix A)
+      const clipboardCopy = await exportToSvg({
+        elements,
+        files: null,
+        exportWithAttribution: true,
+        exportAttributionFormat: "clipboard",
+      });
+      const badge = getBadge(clipboardCopy);
+      expect(badge!.getAttribute("href")).toBe(
+        getExportAttributionUrl("clipboard"),
+      );
+      expect(badge!.getAttribute("href")).toContain("utm_content=clipboard");
+      expect(badge!.getAttribute("target")).toBe("_blank");
+    });
+
     it("widens tiny exports so the badge fits", async () => {
       const svg = await exportToSvg({
         elements: [createRectangle(10, 10)],

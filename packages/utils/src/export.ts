@@ -44,6 +44,11 @@ type ExportOpts = {
   exportWithAttribution?: boolean;
   /** PRD appendix E comparison versions (text only vs logo + copy) */
   exportAttributionVariant?: "text" | "logoAndText";
+  /**
+   * which campaign tag (utm_content) the SVG badge link carries — "svg" for
+   * a file export, "clipboard" for a copy. Defaults to "svg".
+   */
+  exportAttributionFormat?: "svg" | "clipboard";
 };
 
 export const exportToCanvas = ({
@@ -194,6 +199,7 @@ export const exportToSvg = async ({
   reuseImages,
   exportWithAttribution,
   exportAttributionVariant,
+  exportAttributionFormat,
 }: Omit<ExportOpts, "getDimensions"> & {
   exportPadding?: number;
   renderEmbeddables?: boolean;
@@ -219,6 +225,7 @@ export const exportToSvg = async ({
     reuseImages,
     exportWithAttribution,
     exportAttributionVariant,
+    exportAttributionFormat,
   });
 };
 
@@ -230,7 +237,10 @@ export const exportToClipboard = async (
   },
 ) => {
   if (opts.type === "svg") {
-    const svg = await exportToSvg(opts);
+    const svg = await exportToSvg({
+      ...opts,
+      exportAttributionFormat: "clipboard",
+    });
     await copyTextToSystemClipboard(svg.outerHTML);
   } else if (opts.type === "png") {
     await copyBlobToClipboardAsPng(exportToBlob(opts));

@@ -65,7 +65,10 @@ import {
   renderExportAttributionToSvg,
 } from "./exportAttribution";
 
-import type { ExportAttributionVariant } from "./exportAttribution";
+import type {
+  ExportAttributionFormat,
+  ExportAttributionVariant,
+} from "./exportAttribution";
 
 import type { RenderableElementsMap } from "./types";
 
@@ -360,6 +363,12 @@ export const exportToSvg = async (
     exportWithAttribution?: boolean;
     /** PRD appendix E: text only vs logo + copy. Default is logo + copy. */
     exportAttributionVariant?: Exclude<ExportAttributionVariant, "off">;
+    /**
+     * which campaign tag (utm_content) the badge link carries — "svg" for a
+     * file export, "clipboard" for a copy. Defaults to "svg" so existing
+     * direct SVG-file callers are unaffected.
+     */
+    exportAttributionFormat?: ExportAttributionFormat;
   },
 ): Promise<SVGSVGElement> => {
   const frameRendering = getFrameRenderingConfig(
@@ -580,7 +589,7 @@ export const exportToSvg = async (
     renderExportAttributionToSvg(svgRoot, attribution, {
       exportWithDarkMode,
       exportBackground: appState.exportBackground,
-      format: "svg",
+      format: opts?.exportAttributionFormat ?? "svg",
     });
   }
 

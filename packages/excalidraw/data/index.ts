@@ -139,6 +139,7 @@ export const exportCanvas = async (
       {
         exportingFrame,
         exportWithAttribution: appState.exportWithAttribution,
+        exportAttributionFormat: type === "clipboard-svg" ? "clipboard" : "svg",
       },
     );
 
