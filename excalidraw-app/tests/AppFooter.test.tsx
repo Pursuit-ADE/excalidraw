@@ -15,7 +15,7 @@ import {
 } from "../components/ExcalidrawComBadge";
 
 describe("AppFooter", () => {
-  it("always shows a clickable Excalidraw.com badge", async () => {
+  it("always shows a clickable excalidraw.com badge", async () => {
     await render(
       <Excalidraw>
         <AppFooter onChange={() => {}} />
@@ -27,7 +27,7 @@ describe("AppFooter", () => {
     );
 
     expect(badge).not.toBeNull();
-    expect(badge!.textContent).toBe("Excalidraw.com");
+    expect(badge!.textContent).toBe("excalidraw.com");
     // opens the Excalidraw it runs on (excalidraw.com in production)
     expect(badge!.getAttribute("href")).toBe(getExcalidrawComBadgeUrl());
     expect(badge!.getAttribute("href")).toBe(

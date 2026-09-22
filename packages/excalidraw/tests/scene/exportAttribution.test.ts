@@ -35,8 +35,8 @@ describe("export attribution badge", () => {
     expect(getDefaultAppState().exportWithAttribution).toBe(false);
   });
 
-  it("reads Excalidraw.com", () => {
-    expect(EXPORT_ATTRIBUTION_TEXT).toBe("Excalidraw.com");
+  it("reads excalidraw.com", () => {
+    expect(EXPORT_ATTRIBUTION_TEXT).toBe("excalidraw.com");
   });
 
   it("grows with large diagrams and stays within limits", () => {
@@ -232,7 +232,7 @@ describe("export attribution badge", () => {
       new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" });
     const link = {
       href: getExportAttributionUrl("clipboard"),
-      alt: "Diagram made with Excalidraw.com",
+      alt: "Diagram made with excalidraw.com",
       canvas: { width: 1640, height: 274 } as HTMLCanvasElement,
       scale: 2,
     };
