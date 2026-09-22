@@ -10,7 +10,7 @@ Sharper version: [`excalidraw-badge-demo.mp4`](excalidraw-badge-demo.mp4).
 
 ## What it does
 
-- **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies.
+- **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies. The text is 12 px on most drawings and grows to at most 32 px on very large ones, so it stays readable when the image is shrunk.
 - **The whiteboard shows the same badge, always on**, bottom-right next to the encryption icon. It opens the Excalidraw it runs on in a new tab: excalidraw.com in production, your local or preview build while testing.
 - **Phones get it too**: on the left of the row above the toolbar (undo and redo are on the right). It steps aside while that row shows style buttons, and sits in the bottom-left corner in view mode.
 - **One switch removes it from exports**: Add "excalidraw.com" in the Export image window. On by default on excalidraw.com, off by default for apps that use the npm package, remembered in the browser.
@@ -105,11 +105,14 @@ Open http://localhost:3001, draw something, and open the Export image window (Ct
 - 16 badge tests (export badge, clipboard link and fallback, tracking, corner badge, phone badge); the full suite passes (2,213 tests, 137 files)
 - Type check, lint and formatting clean
 - Checked in the real app, on desktop and phone sizes, and paste-tested in Word and Google Docs
+- Tested separately in Safari by an outside tester (September 22): PNG and SVG with the switch on and off, and Copy to clipboard into Google Docs, all passed
 
 ## Decided
 
 - Wording (September 22, 2026): the badge reads "excalidraw.com" in lowercase, matching how Excalidraw writes its own address.
+- Size (September 22, 2026): the outside tester found the first badge too large for Avni's "subtle" brief. The text went from 14–40 px to 12–32 px, and the logo is now the same height as the text. On the sample diagram (820 × 110 px without the badge) the badge adds 16 px of height instead of 27 px.
 
 ## Still open
 
 - Run the creator and viewer sessions with the test kit
+- A PNG export from Cursor's built-in browser saved an empty file; the same build works in Safari. To check whether the badge is involved, export a PNG in Cursor with the switch off. With the switch off, exports run the same code as before the badge was added, so an empty file then would mean the problem is Cursor's.

@@ -40,9 +40,9 @@ describe("export attribution badge", () => {
   });
 
   it("grows with large diagrams and stays within limits", () => {
-    expect(getExportAttributionFontSize(200, 100)).toBe(14);
-    expect(getExportAttributionFontSize(1000, 200)).toBe(20);
-    expect(getExportAttributionFontSize(5000, 3000)).toBe(40);
+    expect(getExportAttributionFontSize(200, 100)).toBe(12);
+    expect(getExportAttributionFontSize(1000, 200)).toBe(15);
+    expect(getExportAttributionFontSize(5000, 3000)).toBe(32);
   });
 
   describe("exportToSvg", () => {

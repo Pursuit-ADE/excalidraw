@@ -208,7 +208,7 @@ export const exportToCanvas = async (
     exportPadding?: number;
     viewBackgroundColor: string;
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
-    /** adds the "Made with excalidraw.com" badge below the content */
+    /** adds the "excalidraw.com" badge below the content */
     exportWithAttribution?: boolean;
   },
   createCanvas: (
@@ -350,7 +350,7 @@ export const exportToSvg = async (
     exportingFrame?: NonDeleted<ExcalidrawFrameLikeElement> | null;
     skipInliningFonts?: true;
     reuseImages?: boolean;
-    /** adds the clickable "Made with excalidraw.com" badge below the content */
+    /** adds the clickable "excalidraw.com" badge below the content */
     exportWithAttribution?: boolean;
   },
 ): Promise<SVGSVGElement> => {

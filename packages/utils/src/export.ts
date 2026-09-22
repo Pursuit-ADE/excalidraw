@@ -38,7 +38,7 @@ type ExportOpts = {
     height: number,
   ) => { width: number; height: number; scale?: number };
   /**
-   * adds the "Made with excalidraw.com" badge below the content
+   * adds the "excalidraw.com" badge below the content
    * (off unless explicitly requested)
    */
   exportWithAttribution?: boolean;

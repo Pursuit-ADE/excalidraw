@@ -32,10 +32,13 @@ const TEXT_COLOR = "#46464f";
 const LOGO_COLOR = "#6965db";
 const FONT_FAMILY_ID = FONT_FAMILY.Excalifont;
 
-const MIN_FONT_SIZE = 14;
-const MAX_FONT_SIZE = 40;
-/** badge text grows with big diagrams so it stays readable when shrunk */
-const FONT_SIZE_TO_CONTENT_RATIO = 0.02;
+const MIN_FONT_SIZE = 12;
+const MAX_FONT_SIZE = 32;
+/**
+ * badge text grows with big diagrams so it stays readable when shrunk, but
+ * stays small next to the drawing (testers found the first size too loud)
+ */
+const FONT_SIZE_TO_CONTENT_RATIO = 0.015;
 
 export type ExportAttributionLayout = {
   /** export width/height including the badge */
@@ -90,14 +93,14 @@ export const layoutExportAttribution = ({
   );
   const font = getFontString({ fontFamily: FONT_FAMILY_ID, fontSize });
   const textWidth = getLineWidth(EXPORT_ATTRIBUTION_TEXT, font);
-  const logoSize = Math.round(fontSize * 1.2);
-  const logoGap = Math.round(fontSize * 0.4);
+  const logoSize = fontSize;
+  const logoGap = Math.round(fontSize * 0.35);
 
   const badgeWidth = logoSize + logoGap + textWidth;
   const badgeHeight = logoSize;
   // keep the badge off the image edge even when exporting a frame (padding 0)
   const margin = Math.max(exportPadding, 8);
-  const spacing = Math.round(fontSize * 0.5);
+  const spacing = Math.round(fontSize * 0.35);
 
   const y = height - exportPadding + spacing;
   const nextWidth = Math.max(width, badgeWidth + margin * 2);

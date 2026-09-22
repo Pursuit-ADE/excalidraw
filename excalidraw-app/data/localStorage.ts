@@ -13,7 +13,7 @@ import { STORAGE_KEYS } from "../app_constants";
  * user hasn't saved their own choice yet.
  */
 export const APP_DEFAULT_APP_STATE: Pick<AppState, "exportWithAttribution"> = {
-  // "Made with excalidraw.com" badge on exports: on by default, one click off
+  // "excalidraw.com" badge on exports: on by default, one click off
   exportWithAttribution: true,
 };
 
