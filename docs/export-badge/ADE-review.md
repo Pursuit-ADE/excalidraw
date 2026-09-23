@@ -71,7 +71,7 @@ These work in code, but they are **not** Day 15–20 P0 and some conflict with P
 ## Done on ADE after this review
 
 1. `EXPORT_ATTRIBUTION_TEXT` is `excalidraw.com` (shorter, subtler credit).
-2. Export toggle uses Avni’s wording: **Help spread the word about Excalidraw**, plus the “?” tooltip.
+2. Export toggle uses Avni’s pick: **Give Excalidraw a nod**, plus the “?” tooltip.
 3. P2 compact badge: tiny exports use logo + `excalidraw.com` when the full string would overflow.
 4. P2 comparison versions: `exportAttributionVariant` `"text"` | `"logoAndText"` plus [`docs/export-badge/comparison-test.md`](comparison-test.md).
 

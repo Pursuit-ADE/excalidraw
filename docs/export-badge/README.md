@@ -13,7 +13,7 @@ Sharper version: [`excalidraw-badge-demo.mp4`](excalidraw-badge-demo.mp4).
 - **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies.
 - **The whiteboard shows the same badge, always on**, bottom-right next to the encryption icon. It opens the Excalidraw it runs on in a new tab: excalidraw.com in production, your local or preview build while testing.
 - **Phones get it too**: on the left of the row above the toolbar (undo and redo are on the right). It steps aside while that row shows style buttons, and sits in the bottom-left corner in view mode.
-- **One switch removes it from exports**: Help spread the word about Excalidraw in the Export image window (with a “?” that explains the badge). On by default on excalidraw.com, off by default for apps that use the npm package, remembered in the browser.
+- **One switch removes it from exports**: Give Excalidraw a nod in the Export image window (with a “?” that explains the badge). On by default on excalidraw.com, off by default for apps that use the npm package, remembered in the browser.
 - **Copies can be clickable**: with the badge on, Copy to clipboard also copies a linked version of the image. Word pastes it as a clickable image.
 - **Every export is measured**: right-click and Shift+Alt+C copies now count as exports, and every export records `attribution:on` or `attribution:off`.
 
