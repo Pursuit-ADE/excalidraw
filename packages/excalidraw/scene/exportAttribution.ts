@@ -4,6 +4,8 @@ import {
   applyDarkModeFilter,
   getFontFamilyString,
   getFontString,
+  isColorDark,
+  isTransparent,
 } from "@excalidraw/common";
 
 import { getLineWidth, newTextElement } from "@excalidraw/element";
@@ -119,23 +121,44 @@ export const layoutExportAttribution = ({
   };
 };
 
+type AttributionColorOptions = {
+  exportWithDarkMode: boolean;
+  exportBackground: boolean;
+  /** canvas background; the badge contrasts with it when it is exported */
+  viewBackgroundColor: string | null;
+};
+
 const getAttributionColors = ({
   exportWithDarkMode,
   exportBackground,
-}: {
-  exportWithDarkMode: boolean;
-  exportBackground: boolean;
-}) => ({
-  text: applyDarkModeFilter(TEXT_COLOR, exportWithDarkMode),
-  logo: applyDarkModeFilter(LOGO_COLOR, exportWithDarkMode),
-  // transparent exports can land on any page colour, so give the badge a thin
-  // contrasting outline to keep it readable on both light and dark pages
-  halo: exportBackground
-    ? null
-    : exportWithDarkMode
-    ? "rgba(18, 18, 18, 0.85)"
-    : "rgba(255, 255, 255, 0.85)",
-});
+  viewBackgroundColor,
+}: AttributionColorOptions) => {
+  if (
+    !exportBackground ||
+    !viewBackgroundColor ||
+    isTransparent(viewBackgroundColor)
+  ) {
+    return {
+      text: applyDarkModeFilter(TEXT_COLOR, exportWithDarkMode),
+      logo: applyDarkModeFilter(LOGO_COLOR, exportWithDarkMode),
+      // transparent exports can land on any page colour, so give the badge a
+      // thin contrasting outline to keep it readable on light and dark pages
+      halo: exportWithDarkMode
+        ? "rgba(18, 18, 18, 0.85)"
+        : "rgba(255, 255, 255, 0.85)",
+    };
+  }
+  // follow the colour the background is actually painted with, so a dark
+  // custom background (or a light one in dark mode) still gets a readable badge
+  const onDarkBackground = isColorDark(
+    applyDarkModeFilter(viewBackgroundColor, exportWithDarkMode),
+  );
+  return {
+    text: applyDarkModeFilter(TEXT_COLOR, onDarkBackground),
+    logo: applyDarkModeFilter(LOGO_COLOR, onDarkBackground),
+    halo: null,
+  };
+};
 
 /** text is right-aligned to the badge edge so it never overflows the image */
 const getTextAnchor = (layout: ExportAttributionLayout) => ({
@@ -147,10 +170,8 @@ const getTextAnchor = (layout: ExportAttributionLayout) => ({
 export const renderExportAttributionToCanvas = (
   canvas: HTMLCanvasElement,
   layout: ExportAttributionLayout,
-  opts: {
+  opts: AttributionColorOptions & {
     scale: number;
-    exportWithDarkMode: boolean;
-    exportBackground: boolean;
   },
 ) => {
   const context = canvas.getContext("2d");
@@ -199,9 +220,7 @@ export const renderExportAttributionToCanvas = (
 export const renderExportAttributionToSvg = (
   svgRoot: SVGSVGElement,
   layout: ExportAttributionLayout,
-  opts: {
-    exportWithDarkMode: boolean;
-    exportBackground: boolean;
+  opts: AttributionColorOptions & {
     format: ExportAttributionFormat;
   },
 ) => {

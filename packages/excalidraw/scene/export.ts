@@ -317,6 +317,7 @@ export const exportToCanvas = async (
       scale,
       exportWithDarkMode: appState.exportWithDarkMode,
       exportBackground,
+      viewBackgroundColor,
     });
   }
 
@@ -571,6 +572,7 @@ export const exportToSvg = async (
     renderExportAttributionToSvg(svgRoot, attribution, {
       exportWithDarkMode,
       exportBackground: appState.exportBackground,
+      viewBackgroundColor,
       format: "svg",
     });
   }

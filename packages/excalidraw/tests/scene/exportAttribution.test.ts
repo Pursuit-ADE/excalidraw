@@ -117,6 +117,34 @@ describe("export attribution badge", () => {
       );
     });
 
+    it("stays readable on custom background colours", async () => {
+      const elements = [createRectangle()];
+      const darkBackground = await exportToSvg({
+        elements,
+        files: null,
+        appState: { exportBackground: true, viewBackgroundColor: "#1e1e1e" },
+        exportWithAttribution: true,
+      });
+      // in dark mode a dark background is painted light, so the text is dark
+      const darkBackgroundInDarkMode = await exportToSvg({
+        elements,
+        files: null,
+        appState: {
+          exportBackground: true,
+          exportWithDarkMode: true,
+          viewBackgroundColor: "#1e1e1e",
+        },
+        exportWithAttribution: true,
+      });
+
+      expect(getBadgeText(darkBackground)!.getAttribute("fill")).toBe(
+        applyDarkModeFilter("#46464f"),
+      );
+      expect(getBadgeText(darkBackgroundInDarkMode)!.getAttribute("fill")).toBe(
+        "#46464f",
+      );
+    });
+
     it("adds an outline only on transparent exports", async () => {
       const elements = [createRectangle()];
       const transparent = await exportToSvg({

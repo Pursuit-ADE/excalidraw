@@ -10,7 +10,7 @@ Sharper version: [`excalidraw-badge-demo.mp4`](excalidraw-badge-demo.mp4).
 
 ## What it does
 
-- **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies. The text is 12 px on most drawings and grows to at most 32 px on very large ones, so it stays readable when the image is shrunk.
+- **Every image export carries a small badge**: the Excalidraw logo and "excalidraw.com", bottom-right, below the drawing so it never covers a shape. PNG, SVG and all three clipboard copies. The text is 12 px on most drawings and grows to at most 32 px on very large ones, so it stays readable when the image is shrunk. On a dark background colour it switches to light text.
 - **The whiteboard shows the same badge, always on**, bottom-right next to the encryption icon. It opens the Excalidraw it runs on in a new tab: excalidraw.com in production, your local or preview build while testing.
 - **Phones get it too**: on the left of the row above the toolbar (undo and redo are on the right). It steps aside while that row shows style buttons, and sits in the bottom-left corner in view mode.
 - **One switch removes it from exports**: Add "excalidraw.com" in the Export image window. On by default on excalidraw.com, off by default for apps that use the npm package, remembered in the browser.
@@ -102,7 +102,7 @@ Open http://localhost:3001, draw something, and open the Export image window (Ct
 
 ## Checks
 
-- 16 badge tests (export badge, clipboard link and fallback, tracking, corner badge, phone badge); the full suite passes (2,213 tests, 137 files)
+- 17 badge tests (export badge, clipboard link and fallback, tracking, corner badge, phone badge); the full suite passes (2,214 tests, 137 files)
 - Type check, lint and formatting clean
 - Checked in the real app, on desktop and phone sizes, and paste-tested in Word and Google Docs
 - Tested separately in Safari by an outside tester (September 22): PNG and SVG with the switch on and off, and Copy to clipboard into Google Docs, all passed
