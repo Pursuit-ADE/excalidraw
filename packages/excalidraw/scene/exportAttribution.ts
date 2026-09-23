@@ -4,6 +4,8 @@ import {
   applyDarkModeFilter,
   getFontFamilyString,
   getFontString,
+  isColorDark,
+  isTransparent,
 } from "@excalidraw/common";
 
 import { getLineWidth, newTextElement } from "@excalidraw/element";
@@ -42,10 +44,10 @@ const TEXT_COLOR = "#46464f";
 const LOGO_COLOR = "#6965db";
 const FONT_FAMILY_ID = FONT_FAMILY.Excalifont;
 
-const MIN_FONT_SIZE = 14;
-const MAX_FONT_SIZE = 40;
-/** badge text grows with big diagrams so it stays readable when shrunk */
-const FONT_SIZE_TO_CONTENT_RATIO = 0.02;
+const MIN_FONT_SIZE = 12;
+const MAX_FONT_SIZE = 32;
+/** testers found 14–40px too loud; Avni preferred this smaller size */
+const FONT_SIZE_TO_CONTENT_RATIO = 0.015;
 
 export type ExportAttributionLayout = {
   /** export width/height including the badge */
@@ -118,8 +120,8 @@ export const layoutExportAttribution = ({
     height - exportPadding * 2,
   );
   const font = getFontString({ fontFamily: FONT_FAMILY_ID, fontSize });
-  const logoSize = Math.round(fontSize * 1.2);
-  const logoGap = Math.round(fontSize * 0.4);
+  const logoSize = fontSize;
+  const logoGap = Math.round(fontSize * 0.35);
   const margin = Math.max(exportPadding, 8);
 
   const showLogo = variant === "logoAndText";
@@ -148,7 +150,7 @@ export const layoutExportAttribution = ({
     logoGap,
   });
   const badgeHeight = logoSize;
-  const spacing = Math.round(fontSize * 0.5);
+  const spacing = Math.round(fontSize * 0.35);
 
   const y = height - exportPadding + spacing;
   const nextWidth = Math.max(width, badgeWidth + margin * 2);
@@ -170,23 +172,39 @@ export const layoutExportAttribution = ({
   };
 };
 
+type AttributionColorOptions = {
+  exportWithDarkMode: boolean;
+  exportBackground: boolean;
+  viewBackgroundColor?: string | null;
+};
+
 const getAttributionColors = ({
   exportWithDarkMode,
   exportBackground,
-}: {
-  exportWithDarkMode: boolean;
-  exportBackground: boolean;
-}) => ({
-  text: applyDarkModeFilter(TEXT_COLOR, exportWithDarkMode),
-  logo: applyDarkModeFilter(LOGO_COLOR, exportWithDarkMode),
-  // transparent exports can land on any page colour, so give the badge a thin
-  // contrasting outline to keep it readable on both light and dark pages
-  halo: exportBackground
-    ? null
-    : exportWithDarkMode
-    ? "rgba(18, 18, 18, 0.85)"
-    : "rgba(255, 255, 255, 0.85)",
-});
+  viewBackgroundColor,
+}: AttributionColorOptions) => {
+  if (
+    !exportBackground ||
+    !viewBackgroundColor ||
+    isTransparent(viewBackgroundColor)
+  ) {
+    return {
+      text: applyDarkModeFilter(TEXT_COLOR, exportWithDarkMode),
+      logo: applyDarkModeFilter(LOGO_COLOR, exportWithDarkMode),
+      halo: exportWithDarkMode
+        ? "rgba(18, 18, 18, 0.85)"
+        : "rgba(255, 255, 255, 0.85)",
+    };
+  }
+  const onDarkBackground = isColorDark(
+    applyDarkModeFilter(viewBackgroundColor, exportWithDarkMode),
+  );
+  return {
+    text: applyDarkModeFilter(TEXT_COLOR, onDarkBackground),
+    logo: applyDarkModeFilter(LOGO_COLOR, onDarkBackground),
+    halo: null,
+  };
+};
 
 /** text is right-aligned to the badge edge so it never overflows the image */
 const getTextAnchor = (layout: ExportAttributionLayout) => ({
@@ -198,10 +216,8 @@ const getTextAnchor = (layout: ExportAttributionLayout) => ({
 export const renderExportAttributionToCanvas = (
   canvas: HTMLCanvasElement,
   layout: ExportAttributionLayout,
-  opts: {
+  opts: AttributionColorOptions & {
     scale: number;
-    exportWithDarkMode: boolean;
-    exportBackground: boolean;
   },
 ) => {
   const context = canvas.getContext("2d");
@@ -250,9 +266,7 @@ export const renderExportAttributionToCanvas = (
 export const renderExportAttributionToSvg = (
   svgRoot: SVGSVGElement,
   layout: ExportAttributionLayout,
-  opts: {
-    exportWithDarkMode: boolean;
-    exportBackground: boolean;
+  opts: AttributionColorOptions & {
     format: ExportAttributionFormat;
   },
 ) => {

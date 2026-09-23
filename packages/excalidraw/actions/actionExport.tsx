@@ -117,7 +117,7 @@ export const actionChangeExportWithAttribution = register<
   AppState["exportWithAttribution"]
 >({
   name: "changeExportWithAttribution",
-  label: "labels.addWatermark",
+  label: "imageExportDialog.label.attribution",
   trackEvent: {
     category: "export",
     action: "toggleAttribution",
@@ -134,7 +134,13 @@ export const actionChangeExportWithAttribution = register<
       checked={appState.exportWithAttribution}
       onChange={(checked) => updateData(checked)}
     >
-      {t("labels.addWatermark")}
+      {t("imageExportDialog.label.attribution")}
+      <Tooltip
+        label={t("imageExportDialog.tooltip.attribution")}
+        long={true}
+      >
+        <div className="excalidraw-tooltip-icon">{questionCircle}</div>
+      </Tooltip>
     </CheckboxItem>
   ),
 });

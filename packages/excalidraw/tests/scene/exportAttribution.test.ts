@@ -47,9 +47,9 @@ describe("export attribution badge", () => {
   });
 
   it("grows with large diagrams and stays within limits", () => {
-    expect(getExportAttributionFontSize(200, 100)).toBe(14);
-    expect(getExportAttributionFontSize(1000, 200)).toBe(20);
-    expect(getExportAttributionFontSize(5000, 3000)).toBe(40);
+    expect(getExportAttributionFontSize(200, 100)).toBe(12);
+    expect(getExportAttributionFontSize(1000, 200)).toBe(15);
+    expect(getExportAttributionFontSize(5000, 3000)).toBe(32);
   });
 
   describe("exportToSvg", () => {
@@ -192,6 +192,20 @@ describe("export attribution badge", () => {
 
       expect(getBadgeText(transparent)!.getAttribute("stroke")).toBeTruthy();
       expect(getBadgeText(withBackground)!.getAttribute("stroke")).toBeNull();
+    });
+
+    it("stays readable on a dark custom background in light mode", async () => {
+      const svg = await exportToSvg({
+        elements: [createRectangle()],
+        files: null,
+        appState: {
+          exportBackground: true,
+          viewBackgroundColor: "#1e1e1e",
+        },
+        exportWithAttribution: true,
+      });
+
+      expect(getBadgeText(svg)!.getAttribute("fill")).not.toBe("#46464f");
     });
   });
 
