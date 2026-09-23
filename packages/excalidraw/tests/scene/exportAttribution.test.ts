@@ -4,8 +4,12 @@ import { applyDarkModeFilter } from "@excalidraw/common";
 
 import { actionCopyAsPng, actionCopyAsSvg } from "../../actions";
 import { copyBlobToClipboardAsPng } from "../../clipboard";
-import { actionChangeExportWithAttribution } from "../../actions/actionExport";
+import {
+  actionChangeExportWithAttribution,
+  getExportAttributionLabel,
+} from "../../actions/actionExport";
 import { getDefaultAppState } from "../../appState";
+import { defaultLang, getLanguage, languages, setLanguage } from "../../i18n";
 import {
   EXPORT_ATTRIBUTION_TEXT,
   getExportAttributionFontSize,
@@ -180,6 +184,28 @@ describe("export attribution badge", () => {
       );
       expect(getFillTextCalls(canvas)).toContain(EXPORT_ATTRIBUTION_TEXT);
       expect(canvas.height).toBeGreaterThan(withoutBadge.height);
+    });
+  });
+
+  describe("switch label", () => {
+    const initialLanguage = getLanguage();
+    afterEach(async () => {
+      await setLanguage(initialLanguage);
+    });
+
+    it("invites people to keep the badge on", async () => {
+      await setLanguage(defaultLang);
+      const { label, tooltip } = getExportAttributionLabel();
+      expect(label).toBe("Give Excalidraw a nod");
+      expect(tooltip).toContain("free and open source");
+    });
+
+    it("keeps the translated label in languages without the new text", async () => {
+      await setLanguage(languages.find((lang) => lang.code === "es-ES")!);
+      expect(getExportAttributionLabel()).toEqual({
+        label: 'Agregar "Hecho con Excalidraw"',
+        tooltip: undefined,
+      });
     });
   });
 

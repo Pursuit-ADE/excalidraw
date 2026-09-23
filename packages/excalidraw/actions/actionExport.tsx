@@ -18,7 +18,7 @@ import { nativeFileSystemSupported } from "../data/filesystem";
 
 import { resaveAsImageWithScene } from "../data/resave";
 
-import { t } from "../i18n";
+import { hasOwnTranslation, t } from "../i18n";
 
 import "../components/ToolIcon.scss";
 
@@ -113,6 +113,19 @@ export const actionChangeExportEmbedScene = register<
   ),
 });
 
+/**
+ * The switch label invites people to keep the badge on. It is only written in
+ * English so far, so other languages keep the already translated
+ * "Made with Excalidraw" label rather than showing an English sentence.
+ */
+export const getExportAttributionLabel = () =>
+  hasOwnTranslation("imageExportDialog.label.attribution")
+    ? {
+        label: t("imageExportDialog.label.attribution"),
+        tooltip: t("imageExportDialog.tooltip.attribution"),
+      }
+    : { label: t("labels.addWatermark"), tooltip: undefined };
+
 export const actionChangeExportWithAttribution = register<
   AppState["exportWithAttribution"]
 >({
@@ -134,7 +147,7 @@ export const actionChangeExportWithAttribution = register<
       checked={appState.exportWithAttribution}
       onChange={(checked) => updateData(checked)}
     >
-      {t("imageExportDialog.label.attribution")}
+      {getExportAttributionLabel().label}
     </CheckboxItem>
   ),
 });

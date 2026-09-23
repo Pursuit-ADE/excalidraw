@@ -124,6 +124,10 @@ const findPartsForData = (data: any, parts: string[]) => {
   return data;
 };
 
+/** whether the current language has its own text for a key, without falling back to English */
+export const hasOwnTranslation = (path: NestedKeyOf<typeof fallbackLangData>) =>
+  findPartsForData(currentLangData, path.split(".")) !== undefined;
+
 export const t = (
   path: NestedKeyOf<typeof fallbackLangData>,
   replacement?: { [key: string]: string | number } | null,
