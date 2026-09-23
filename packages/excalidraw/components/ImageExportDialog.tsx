@@ -27,6 +27,8 @@ import { useCopyStatus } from "../hooks/useCopiedIndicator";
 
 import { t } from "../i18n";
 import { isSomeElementSelected } from "../scene";
+import { getExportSize } from "../scene/export";
+import { layoutExportAttribution } from "../scene/exportAttribution";
 
 import { copyIcon, downloadIcon, helpIcon } from "./icons";
 import { Dialog } from "./Dialog";
@@ -114,6 +116,26 @@ const ImageExportModal = ({
     elementsSnapshot,
     appStateSnapshot,
     exportSelectionOnly,
+  );
+
+  const exportPadding = exportingFrame ? 0 : DEFAULT_EXPORT_PADDING;
+  const [baseExportWidth, baseExportHeight] = getExportSize(
+    exportingFrame ? [exportingFrame] : exportedElements,
+    exportPadding,
+    1,
+  );
+  const attributionLayout = exportWithAttribution
+    ? layoutExportAttribution({
+        width: baseExportWidth,
+        height: baseExportHeight,
+        exportPadding,
+      })
+    : null;
+  const exportWidth = Math.trunc(
+    (attributionLayout?.width ?? baseExportWidth) * exportScale,
+  );
+  const exportHeight = Math.trunc(
+    (attributionLayout?.height ?? baseExportHeight) * exportScale,
   );
 
   useEffect(() => {
@@ -312,18 +334,31 @@ const ImageExportModal = ({
           label={t("imageExportDialog.label.scale")}
           name="exportScale"
         >
-          <RadioGroup
-            name="exportScale"
-            value={exportScale}
-            onChange={(scale) => {
-              setExportScale(scale);
-              actionManager.executeAction(actionChangeExportScale, "ui", scale);
-            }}
-            choices={EXPORT_SCALES.map((scale) => ({
-              value: scale,
-              label: `${scale}\u00d7`,
-            }))}
-          />
+          <div className="ImageExportModal__settings__scale">
+            <RadioGroup
+              name="exportScale"
+              value={exportScale}
+              onChange={(scale) => {
+                setExportScale(scale);
+                actionManager.executeAction(
+                  actionChangeExportScale,
+                  "ui",
+                  scale,
+                );
+              }}
+              choices={EXPORT_SCALES.map((scale) => ({
+                value: scale,
+                label: `${scale}\u00d7`,
+                ariaLabel: `${scale}\u00d7`,
+              }))}
+            />
+            <div
+              className="ImageExportModal__settings__scale__size"
+              aria-live="polite"
+            >
+              {exportWidth} × {exportHeight}px
+            </div>
+          </div>
         </ExportSetting>
 
         <div className="ImageExportModal__settings__buttons">
