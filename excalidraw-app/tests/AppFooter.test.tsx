@@ -15,7 +15,7 @@ import {
 } from "../components/ExcalidrawComBadge";
 
 describe("AppFooter", () => {
-  it("always shows a clickable Excalidraw.com badge", async () => {
+  it("always shows a clickable excalidraw.com badge", async () => {
     await render(
       <Excalidraw>
         <AppFooter onChange={() => {}} />

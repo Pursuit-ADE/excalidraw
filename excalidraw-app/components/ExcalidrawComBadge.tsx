@@ -22,7 +22,7 @@ export const getExcalidrawComBadgeUrl = () => {
   return `${origin}/${CANVAS_BADGE_QUERY}`;
 };
 
-/** always-visible "Excalidraw.com" link in the bottom-right of the whiteboard */
+/** always-visible "excalidraw.com" link in the bottom-right of the whiteboard */
 export const ExcalidrawComBadge = () => (
   <a
     className="excalidraw-com-badge"

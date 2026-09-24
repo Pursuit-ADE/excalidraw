@@ -18,6 +18,7 @@ import {
   actionChangeExportScale,
   actionChangeExportWithAttribution,
   actionChangeProjectName,
+  getExportAttributionLabel,
 } from "../actions/actionExport";
 import { probablySupportsClipboardBlob } from "../clipboard";
 import { prepareElementsForExport } from "../data";
@@ -90,6 +91,7 @@ const ImageExportModal = ({
   const [exportWithAttribution, setExportWithAttribution] = useState(
     appStateSnapshot.exportWithAttribution,
   );
+  const attributionLabel = getExportAttributionLabel();
   const [exportScale, setExportScale] = useState(appStateSnapshot.exportScale);
 
   const previewRef = useRef<HTMLDivElement>(null);
@@ -295,8 +297,8 @@ const ImageExportModal = ({
           />
         </ExportSetting>
         <ExportSetting
-          label={t("imageExportDialog.label.attribution")}
-          tooltip={t("imageExportDialog.tooltip.attribution")}
+          label={attributionLabel.label}
+          tooltip={attributionLabel.tooltip}
           name="exportAttributionSwitch"
         >
           <Switch
