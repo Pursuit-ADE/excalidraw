@@ -9,7 +9,13 @@ import {
   getExportAttributionLabel,
 } from "../../actions/actionExport";
 import { getDefaultAppState } from "../../appState";
-import { defaultLang, getLanguage, languages, setLanguage } from "../../i18n";
+import {
+  defaultLang,
+  getLanguage,
+  hasOwnTranslation,
+  languages,
+  setLanguage,
+} from "../../i18n";
 import {
   EXPORT_ATTRIBUTION_TEXT,
   getExportAttributionFontSize,
@@ -198,6 +204,13 @@ describe("export attribution badge", () => {
       const { label, tooltip } = getExportAttributionLabel();
       expect(label).toBe("Give Excalidraw a nod");
       expect(tooltip).toContain("free and open source");
+    });
+
+    it("treats empty (untranslated) text as missing", async () => {
+      // Crowdin writes untranslated keys as "", e.g. addWatermark in kk-KZ
+      await setLanguage({ code: "kk-KZ", label: "Қазақ тілі" });
+      expect(hasOwnTranslation("labels.addWatermark")).toBe(false);
+      expect(hasOwnTranslation("labels.language")).toBe(true);
     });
 
     it("keeps the translated label in languages without the new text", async () => {

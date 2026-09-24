@@ -118,8 +118,13 @@ export const actionChangeExportEmbedScene = register<
  * English so far, so other languages keep the already translated
  * "Made with Excalidraw" label rather than showing an English sentence.
  */
-export const getExportAttributionLabel = () =>
+const getExportAttributionLabelKey = () =>
   hasOwnTranslation("imageExportDialog.label.attribution")
+    ? "imageExportDialog.label.attribution"
+    : "labels.addWatermark";
+
+export const getExportAttributionLabel = () =>
+  getExportAttributionLabelKey() === "imageExportDialog.label.attribution"
     ? {
         label: t("imageExportDialog.label.attribution"),
         tooltip: t("imageExportDialog.tooltip.attribution"),
@@ -130,7 +135,7 @@ export const actionChangeExportWithAttribution = register<
   AppState["exportWithAttribution"]
 >({
   name: "changeExportWithAttribution",
-  label: "imageExportDialog.label.attribution",
+  label: getExportAttributionLabelKey,
   trackEvent: {
     category: "export",
     action: "toggleAttribution",
@@ -142,14 +147,22 @@ export const actionChangeExportWithAttribution = register<
       captureUpdate: CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ appState, updateData }) => (
-    <CheckboxItem
-      checked={appState.exportWithAttribution}
-      onChange={(checked) => updateData(checked)}
-    >
-      {getExportAttributionLabel().label}
-    </CheckboxItem>
-  ),
+  PanelComponent: ({ appState, updateData }) => {
+    const { label, tooltip } = getExportAttributionLabel();
+    return (
+      <CheckboxItem
+        checked={appState.exportWithAttribution}
+        onChange={(checked) => updateData(checked)}
+      >
+        {label}
+        {tooltip && (
+          <Tooltip label={tooltip} long={true}>
+            <div className="excalidraw-tooltip-icon">{questionCircle}</div>
+          </Tooltip>
+        )}
+      </CheckboxItem>
+    );
+  },
 });
 
 // ---------------------------------------------------------------------------

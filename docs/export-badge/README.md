@@ -102,7 +102,7 @@ Open http://localhost:3001, draw something, and open the Export image window (Ct
 
 ## Checks
 
-- 19 badge tests (export badge, clipboard link and fallback, tracking, corner badge, phone badge); the full suite passes (2,216 tests, 137 files)
+- 20 badge tests (export badge, clipboard link and fallback, tracking, corner badge, phone badge); the full suite passes (2,217 tests, 137 files)
 - Type check, lint and formatting clean
 - Checked in the real app, on desktop and phone sizes, and paste-tested in Word and Google Docs
 - Tested separately in Safari by an outside tester (September 22): PNG and SVG with the switch on and off, and Copy to clipboard into Google Docs, all passed
